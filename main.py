@@ -26,8 +26,27 @@ class PianoApp:
         self.active_blacks = []
         self.white_keys = []
         self.black_keys = []
+
+        # Piano notes and sounds
+        self.left_hand = pl.left_hand
+        self.right_hand = pl.right_hand
+        self.piano_notes = pl.piano_notes
+        self.white_notes = pl.white_notes
+        self.black_notes = pl.black_notes
+        self.black_labels = pl.black_labels
+        
+        # Load sounds
+        self.white_sounds = self.load_sounds(self.white_notes)
+        self.black_sounds = self.load_sounds(self.black_notes)
         
         self.running = True
+
+    def load_sounds(self, notes):
+        """Load sound files for the given notes"""
+        sounds = []
+        for note in notes:
+            sounds.append(mixer.Sound(f'assets\\notes\\{note}.wav'))
+        return sounds   
 
     def draw_piano(self):
         white_rects = []
@@ -85,6 +104,28 @@ class PianoApp:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.handle_key_press(event.pos)
+    def handle_key_press(self, pos):
+        """Handle piano key press events"""
+        black_key = False
+        
+        # Check black keys first
+        for i in range(len(self.black_keys)):
+            if self.black_keys[i].collidepoint(pos):
+                self.black_sounds[i].play(0, 1000)
+                black_key = True
+                self.active_blacks.append([i, 30])
+                break  # No need to check other keys if black key was pressed
+        
+        # Check white keys only if no black key was pressed
+        if not black_key:
+            for i in range(len(self.white_keys)):
+                if self.white_keys[i].collidepoint(pos):
+                    self.white_sounds[i].play(0, 1000)
+                    self.active_whites.append([i, 30])
+                    break
     
     def update(self):
         pass  # Add update logic here in future
@@ -92,6 +133,7 @@ class PianoApp:
     def render(self):
         self.screen.fill('gray')
         self.white_keys, self.black_keys = self.draw_piano()
+        pygame.display.flip()
 
     def run(self):
         clock = pygame.time.Clock()
@@ -99,7 +141,6 @@ class PianoApp:
             self.handle_events()
             self.update()
             self.render()
-            pygame.display.flip()
             clock.tick(self.fps)
         
         pygame.quit()
