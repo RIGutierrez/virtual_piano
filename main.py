@@ -41,7 +41,20 @@ class PianoApp:
         self.white_sounds = self.load_sounds(self.white_notes)
         self.black_sounds = self.load_sounds(self.black_notes)
 
-        # Keyboard mappings
+        # Initialize keyboard mappings
+        self.update_key_mappings()
+        
+        self.running = True
+
+    def load_sounds(self, notes):
+        """Load sound files for the given notes"""
+        sounds = []
+        for note in notes:
+            sounds.append(mixer.Sound(f'assets\\notes\\{note}.wav'))
+        return sounds 
+
+    def update_key_mappings(self):
+        """Update keyboard mappings when octaves change"""
         self.left_dict = {
             'Z': f'C{self.left_oct}', 'S': f'C#{self.left_oct}',
             'X': f'D{self.left_oct}', 'D': f'D#{self.left_oct}',
@@ -59,15 +72,46 @@ class PianoApp:
             '9': f'G#{self.right_oct}', 'O': f'A{self.right_oct}',
             '0': f'A#{self.right_oct}', 'P': f'B{self.right_oct}'
         }
+    
+    def draw_hands(self):
+        """Draw the hand position indicators"""
+        # Left hand
+        pygame.draw.rect(self.screen, 'dark gray', [(self.left_oct * 245) - 175, self.height - 60, 245, 30], 0, 4)
+        pygame.draw.rect(self.screen, 'black', [(self.left_oct * 245) - 175, self.height - 60, 245, 30], 4, 4)
         
-        self.running = True
+        # Right hand
+        pygame.draw.rect(self.screen, 'dark gray', [(self.right_oct * 245) - 175, self.height - 60, 245, 30], 0, 4)
+        pygame.draw.rect(self.screen, 'black', [(self.right_oct * 245) - 175, self.height - 60, 245, 30], 4, 4)
+        
+        # Draw key labels for both hands
+        self.draw_hand_labels(self.left_oct, self.left_hand)
+        self.draw_hand_labels(self.right_oct, self.right_hand)
 
-    def load_sounds(self, notes):
-        """Load sound files for the given notes"""
-        sounds = []
-        for note in notes:
-            sounds.append(mixer.Sound(f'assets\\notes\\{note}.wav'))
-        return sounds   
+    def draw_hand_labels(self, octave, hand):
+        """Draw the key labels for a hand"""
+        base_x = (octave * 245) - 165
+        y_pos = self.height - 55
+        
+        # White key labels
+        labels = [
+            (hand[0], -0), (hand[2], -35), (hand[4], -70), 
+            (hand[5], -105), (hand[7], -140), (hand[9], -175), 
+            (hand[11], -210)
+        ]
+        
+        # Black key labels
+        black_labels = [
+            (hand[1], -17), (hand[3], -52), 
+            (hand[6], -122), (hand[8], -157), (hand[10], -192)
+        ]
+        
+        for label, offset in labels:
+            text = self.small_font.render(label, True, 'white')
+            self.screen.blit(text, (base_x - offset, y_pos))
+            
+        for label, offset in black_labels:
+            text = self.small_font.render(label, True, 'black')
+            self.screen.blit(text, (base_x - offset, y_pos))
 
     def draw_piano(self):
         white_rects = []
@@ -131,6 +175,9 @@ class PianoApp:
 
             if event.type == pygame.TEXTINPUT:
                 self.handle_key_press(event.text.upper())
+
+            if event.type == pygame.KEYDOWN:
+                self.handle_octave_change(event.key)
     
     def handle_mouse_click(self, pos):
         """Handle piano key press events"""
@@ -160,6 +207,25 @@ class PianoApp:
         elif key in self.right_dict:
             note = self.right_dict[key]
             self.play_note(note)
+
+    def handle_octave_change(self, key):
+        """Adjust octaves based on arrow key presses"""
+        changed = False
+        if key == pygame.K_RIGHT and self.right_oct < 8:
+            self.right_oct += 1
+            changed = True
+        elif key == pygame.K_LEFT and self.right_oct > 0:
+            self.right_oct -= 1
+            changed = True
+        elif key == pygame.K_UP and self.left_oct < 8:
+            self.left_oct += 1
+            changed = True
+        elif key == pygame.K_DOWN and self.left_oct > 0:
+            self.left_oct -= 1
+            changed = True
+            
+        if changed:
+            self.update_key_mappings()
     
     def play_note(self, note):
         """Play the corresponding note and highlight the key"""
@@ -177,7 +243,8 @@ class PianoApp:
     
     def render(self):
         self.screen.fill('gray')
-        self.white_keys, self.black_keys = self.draw_piano()
+        self.white_keys, self.black_keys, self.active_whites, self.active_blacks = self.draw_piano()
+        self.draw_hands()
         pygame.display.flip()
 
     def run(self):
