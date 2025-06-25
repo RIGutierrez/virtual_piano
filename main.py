@@ -91,15 +91,15 @@ class PianoApp:
     
     def render(self):
         self.screen.fill('gray')
-        # Add rendering logic here in future
-        pygame.display.flip()
-    
+        self.white_keys, self.black_keys = self.draw_piano()
+
     def run(self):
         clock = pygame.time.Clock()
         while self.running:
             self.handle_events()
             self.update()
             self.render()
+            pygame.display.flip()
             clock.tick(self.fps)
         
         pygame.quit()
