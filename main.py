@@ -26,6 +26,8 @@ class PianoApp:
         self.active_blacks = []
         self.white_keys = []
         self.black_keys = []
+        self.left_oct = 4
+        self.right_oct = 5
 
         # Piano notes and sounds
         self.left_hand = pl.left_hand
@@ -38,6 +40,25 @@ class PianoApp:
         # Load sounds
         self.white_sounds = self.load_sounds(self.white_notes)
         self.black_sounds = self.load_sounds(self.black_notes)
+
+        # Keyboard mappings
+        self.left_dict = {
+            'Z': f'C{self.left_oct}', 'S': f'C#{self.left_oct}',
+            'X': f'D{self.left_oct}', 'D': f'D#{self.left_oct}',
+            'C': f'E{self.left_oct}', 'V': f'F{self.left_oct}',
+            'G': f'F#{self.left_oct}', 'B': f'G{self.left_oct}',
+            'H': f'G#{self.left_oct}', 'N': f'A{self.left_oct}',
+            'J': f'A#{self.left_oct}', 'M': f'B{self.left_oct}'
+        }
+        
+        self.right_dict = {
+            'R': f'C{self.right_oct}', '5': f'C#{self.right_oct}',
+            'T': f'D{self.right_oct}', '6': f'D#{self.right_oct}',
+            'Y': f'E{self.right_oct}', 'U': f'F{self.right_oct}',
+            '8': f'F#{self.right_oct}', 'I': f'G{self.right_oct}',
+            '9': f'G#{self.right_oct}', 'O': f'A{self.right_oct}',
+            '0': f'A#{self.right_oct}', 'P': f'B{self.right_oct}'
+        }
         
         self.running = True
 
@@ -106,8 +127,12 @@ class PianoApp:
                 self.running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.handle_key_press(event.pos)
-    def handle_key_press(self, pos):
+                self.handle_mouse_click(event.pos)
+
+            if event.type == pygame.TEXTINPUT:
+                self.handle_key_press(event.text.upper())
+    
+    def handle_mouse_click(self, pos):
         """Handle piano key press events"""
         black_key = False
         
@@ -117,7 +142,7 @@ class PianoApp:
                 self.black_sounds[i].play(0, 1000)
                 black_key = True
                 self.active_blacks.append([i, 30])
-                break  # No need to check other keys if black key was pressed
+                break  
         
         # Check white keys only if no black key was pressed
         if not black_key:
@@ -127,8 +152,28 @@ class PianoApp:
                     self.active_whites.append([i, 30])
                     break
     
+    def handle_key_press(self, key):
+        """Handle piano key press via keyboard"""
+        if key in self.left_dict:
+            note = self.left_dict[key]
+            self.play_note(note)
+        elif key in self.right_dict:
+            note = self.right_dict[key]
+            self.play_note(note)
+    
+    def play_note(self, note):
+        """Play the corresponding note and highlight the key"""
+        if note[1] == '#':  # Black key
+            index = self.black_labels.index(note)
+            self.black_sounds[index].play(0, 1000)
+            self.active_blacks.append([index, 30])
+        else:  # White key
+            index = self.white_notes.index(note)
+            self.white_sounds[index].play(0, 1000)
+            self.active_whites.append([index, 30])
+    
     def update(self):
-        pass  # Add update logic here in future
+        pass 
     
     def render(self):
         self.screen.fill('gray')
