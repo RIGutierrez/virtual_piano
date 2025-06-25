@@ -112,6 +112,16 @@ class PianoApp:
         for label, offset in black_labels:
             text = self.small_font.render(label, True, 'black')
             self.screen.blit(text, (base_x - offset, y_pos))
+    
+    def draw_title_bar(self):
+        instruction_text = self.medium_font.render('Up/Down Arrows Change Left Hand', True, 'black')
+        self.screen.blit(instruction_text, (self.width - 500, 10))
+        instruction_text2 = self.medium_font.render('Left/Right Arrows Change Right Hand', True, 'black')
+        self.screen.blit(instruction_text2, (self.width - 500, 50))
+        title_text = self.font.render('Python Programmable Piano!', True, 'white')
+        self.screen.blit(title_text, (298, 18))
+        title_text = self.font.render('Python Programmable Piano!', True, 'black')
+        self.screen.blit(title_text, (300, 20))
 
     def draw_piano(self):
         white_rects = []
@@ -245,6 +255,7 @@ class PianoApp:
         self.screen.fill('gray')
         self.white_keys, self.black_keys, self.active_whites, self.active_blacks = self.draw_piano()
         self.draw_hands()
+        self.draw_title_bar()
         pygame.display.flip()
 
     def run(self):
