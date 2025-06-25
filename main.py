@@ -76,7 +76,7 @@ class PianoApp:
             rect = pygame.draw.rect(self.screen, 'white', [i * 35, self.height - 300, 35, 300], 0, 2)
             white_rects.append(rect)
             pygame.draw.rect(self.screen, 'black', [i * 35, self.height - 300, 35, 300], 2, 2)
-            key_label = self.small_font.render(pl.white_notes[i], True, 'black')
+            key_label = self.small_font.render(self.white_notes[i], True, 'black')
             self.screen.blit(key_label, (i * 35 + 3, self.height - 20))
         
         # Draw black keys
@@ -97,7 +97,7 @@ class PianoApp:
                                        [23 + (i * 35) + (skip_count * 35), self.height - 300, 24, 200], 2, 2)
                         self.active_blacks[q][1] -= 1
 
-            key_label = self.real_small_font.render(pl.black_labels[i], True, 'white')
+            key_label = self.real_small_font.render(self.black_labels[i], True, 'white')
             self.screen.blit(key_label, (25 + (i * 35) + (skip_count * 35), self.height - 120))
             black_rects.append(rect)
 
@@ -119,7 +119,7 @@ class PianoApp:
                 pygame.draw.rect(self.screen, 'green', [j * 35, self.height - 100, 35, 100], 2, 2)
                 self.active_whites[i][1] -= 1
 
-        return white_rects, black_rects
+        return white_rects, black_rects, self.active_whites, self.active_blacks
     
     def handle_events(self):
         for event in pygame.event.get():
