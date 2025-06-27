@@ -1,5 +1,5 @@
 **Python Piano** 
-This project is a refactored version of the original **[PythonPiano]** by [plemaster01](URL).
+This project is a refactored version of the original **[PythonPiano]** by [plemaster01](https://github.com/plemaster01/PythonPiano).
 The code has been restructured into Object-Oriented Programming (OOP) style for better modularity and maintainability.
 
 **Original Project**
